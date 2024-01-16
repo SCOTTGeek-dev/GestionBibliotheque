@@ -1,0 +1,56 @@
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class RapportGenerator {
+
+    public static void main(String[] args) {
+        try {
+            // Établir une connexion à la base de données (à adapter selon ta configuration)
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ta_base_de_donnees", "utilisateur", "mot_de_passe");
+
+            // Exécuter une requête SQL pour récupérer des données (à adapter selon tes besoins)
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM ta_table");
+
+            // Créer un fichier PDF
+            File file = new File("chemin/vers/ton/rapport.pdf");
+            file.getParentFile().mkdirs();
+
+            // Initialiser le document PDF
+            PdfWriter pdfWriter = new PdfWriter(file);
+            PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+            Document document = new Document(pdfDocument);
+
+            // Ajouter des données au document PDF (à adapter selon tes besoins)
+            while (resultSet.next()) {
+                String champ1 = resultSet.getString("champ1");
+                String champ2 = resultSet.getString("champ2");
+
+                document.add(new Paragraph("Champ1: " + champ1));
+                document.add(new Paragraph("Champ2: " + champ2));
+                document.add(new Paragraph("---------------------------"));
+            }
+
+            // Fermer le document
+            document.close();
+
+            // Fermer la connexion à la base de données
+            connection.close();
+
+            System.out.println("Le rapport PDF a été généré avec succès.");
+
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
